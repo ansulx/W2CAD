@@ -1,0 +1,16 @@
+.DS_Store
+.env
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+
+# Data files
+*.mat
+data/index/*.csv
+
+# Outputs and model artifacts
+outputs/
+*.pt
+
+# Local notebooks and logs
+*.log
