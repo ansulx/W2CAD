@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <title>W2CAD — Wavelet-to-CAD</title>
+    <meta
+      name="description"
+      content="W2CAD: scalogram-based ResNet50 pipeline for CAD vs NONCAD classification from ABP and PPG signals."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div class="hero-text">
+          <p class="eyebrow">Research Pipeline</p>
+          <h1>W2CAD (Wavelet-to-CAD)</h1>
+          <p class="lead">
+            A scalogram-first deep learning workflow for
+            <strong>CAD vs NONCAD classification</strong> from ABP and PPG
+            signals, using CWT features and ResNet50 transfer learning.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#getting-started">Get started</a>
+            <a
+              class="button ghost"
+              href="./METHODS_AND_PUBLICATION_READINESS.md"
+            >
+              Methods & readiness
+            </a>
+          </div>
+          <div class="meta">
+            <span>Modalities: ABP, PPG</span>
+            <span>Model: ResNet50 (ImageNet)</span>
+            <span>Representation: CWT scalograms</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="card">
+            <p class="card-title">At a glance</p>
+            <ul>
+              <li>Subject-level train/val/test split</li>
+              <li>Log-power scalograms (Morlet, 32 scales)</li>
+              <li>Transfer learning with full fine-tuning</li>
+              <li>Baselines: Logistic Regression & Random Forest</li>
+              <li>Metrics: AUROC, AUPRC, sensitivity@spec</li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Pipeline overview</h2>
+          <p>
+            From physiological signals to clinical discrimination using
+            wavelet time-frequency representations and CNN transfer learning.
+          </p>
+        </div>
+        <div class="grid three">
+          <div class="panel">
+            <h3>Signal windows</h3>
+            <p>
+              Fixed-length windows from ABP/PPG with missing values replaced by
+              segment median, downsampled for efficient computation.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>CWT scalograms</h3>
+            <p>
+              Morlet wavelet on 32 scales, log-power transform, min-max
+              normalization, and 3-channel replication.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>ResNet50 transfer learning</h3>
+            <p>
+              ImageNet-pretrained backbone with a binary classifier head, fully
+              fine-tuned on scalogram images.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section muted">
+        <div class="section-title">
+          <h2>Research focus</h2>
+          <p>
+            Designed for rigorous evaluation in clinical time-series
+            classification settings.
+          </p>
+        </div>
+        <div class="grid two">
+          <div class="panel">
+            <h3>Evaluation rigor</h3>
+            <p>
+              Subject-level split to prevent leakage, stratified labels, and
+              clinically relevant metrics including AUROC and AUPRC.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>Baselines and comparators</h3>
+            <p>
+              Classical feature baselines (Logistic Regression, Random Forest)
+              provide a grounded performance reference.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>Reproducible runs</h3>
+            <p>
+              Fixed seeds, repeatable index generation, and a Colab notebook to
+              run the full pipeline on GPU.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>Publication readiness</h3>
+            <p>
+              Documented gaps and recommendations for top-tier submissions,
+              including multi-seed evaluation and confidence intervals.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">
+          <h2>Project resources</h2>
+          <p>Key scripts, configs, and outputs for experimentation.</p>
+        </div>
+        <div class="grid three">
+          <div class="panel">
+            <h3>Configs</h3>
+            <p>
+              ABP and PPG experiments configured in
+              <code>configs/abp.yaml</code> and
+              <code>configs/ppg.yaml</code>.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>Training</h3>
+            <p>
+              <code>scripts/train_resnet50.py</code> fine-tunes ResNet50 with
+              early stopping and validation AUC monitoring.
+            </p>
+          </div>
+          <div class="panel">
+            <h3>Reports</h3>
+            <p>
+              <code>scripts/generate_report.py</code> creates a summary report
+              and figures for publication-ready documentation.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section muted" id="getting-started">
+        <div class="section-title">
+          <h2>Getting started</h2>
+          <p>Quick steps to run the pipeline locally or in Colab.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <span class="step-label">1</span>
+            <div>
+              <h3>Install dependencies</h3>
+              <p><code>pip install -r requirements.txt</code></p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-label">2</span>
+            <div>
+              <h3>Build subject-level indices</h3>
+              <p>
+                <code>python scripts/make_index.py --config configs/abp.yaml</code>
+                <br />
+                <code>python scripts/make_index.py --config configs/ppg.yaml</code>
+              </p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-label">3</span>
+            <div>
+              <h3>Train models</h3>
+              <p>
+                <code>python scripts/train_resnet50.py --config configs/abp.yaml</code>
+                <br />
+                <code>python scripts/train_resnet50.py --config configs/ppg.yaml</code>
+              </p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-label">4</span>
+            <div>
+              <h3>Generate reports</h3>
+              <p>
+                <code>python scripts/generate_report.py --configs configs/abp.yaml configs/ppg.yaml --out docs/REPORT.md</code>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="link-row">
+          <a class="link" href="../colab_full_run.ipynb">Colab full run</a>
+          <a class="link" href="./METHODS_AND_PUBLICATION_READINESS.md">
+            Methods & publication readiness
+          </a>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>W2CAD — MIT License • Built for transparent, reproducible research</p>
+      </footer>
+    </div>
+  </body>
+</html>
