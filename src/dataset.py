@@ -43,6 +43,10 @@ class ScalogramDataset(Dataset):
         downsample_factor: int,
         scales: np.ndarray,
         wavelet: str,
+        augment: bool = False,
+        time_shift_max: int = 0,
+        noise_std: float = 0.0,
+        normalize: str = "none",
     ) -> None:
         self.index = index
         self.window_size = window_size
@@ -50,6 +54,12 @@ class ScalogramDataset(Dataset):
         self.downsample_factor = max(1, int(downsample_factor))
         self.scales = scales
         self.wavelet = wavelet
+        self.augment = bool(augment)
+        self.time_shift_max = max(0, int(time_shift_max))
+        self.noise_std = float(noise_std)
+        self.normalize = str(normalize).lower()
+        self._imagenet_mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+        self._imagenet_std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
 
     def __len__(self) -> int:
         return len(self.index)
@@ -61,8 +71,19 @@ class ScalogramDataset(Dataset):
         segment = clean_segment(segment, self.missing_value)
         if self.downsample_factor > 1:
             segment = segment[:: self.downsample_factor]
+        if self.augment:
+            if self.time_shift_max > 0:
+                shift = np.random.randint(-self.time_shift_max, self.time_shift_max + 1)
+                if shift != 0:
+                    segment = np.roll(segment, shift)
+            if self.noise_std > 0:
+                scale = float(np.std(segment)) if segment.size else 0.0
+                if scale > 0:
+                    segment = segment + np.random.normal(0.0, self.noise_std * scale, size=segment.shape)
         scal = compute_scalogram(segment, self.scales, self.wavelet)
         img = scalogram_to_image(scal)
         x = torch.from_numpy(img)
+        if self.normalize == "imagenet":
+            x = (x - self._imagenet_mean) / self._imagenet_std
         y = torch.tensor(item.label, dtype=torch.long)
         return x, y

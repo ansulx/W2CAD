@@ -20,7 +20,22 @@ batch_size: 8
 num_workers: 0
 pin_memory: false
 lr: 0.0001
-epochs: 10
+epochs: 50
+patience: 8
+min_delta: 0.001
+weight_decay: 0.0001
+scheduler:
+  name: "reduce_on_plateau"
+  mode: "max"
+  factor: 0.5
+  patience: 3
+  min_lr: 1.0e-6
+
+# Research-grade training options
+normalize: "imagenet"
+augment: true
+time_shift_max: 50
+noise_std: 0.01
 
 # Tiny run: same pipeline & params, minimal data (set true for M1/CPU sanity check)
 tiny_run: false

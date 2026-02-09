@@ -44,6 +44,13 @@ python scripts/baseline_features.py --config configs/ppg.yaml
 ## Colab full run
 Open `colab_full_run.ipynb` in Colab, enable GPU, and run top-to-bottom. The notebook downloads all four datasets via `gdown`, builds indices, trains models, and prints metrics.
 
+## Research-grade report & figures
+After training, generate a full methods/results report and figures:
+```bash
+python scripts/generate_report.py --configs configs/abp.yaml configs/ppg.yaml --out docs/REPORT.md
+```
+Figures are saved to `outputs/figures/` (training curves, ROC, PR, confusion matrix).
+
 ## M1-friendly settings (already applied)
 - Reduced scalogram scales to 32
 - Downsample factor 2

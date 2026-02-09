@@ -11,6 +11,8 @@ import yaml
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, average_precision_score, roc_auc_score, roc_curve
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -117,13 +119,16 @@ def main() -> None:
 
     results = {}
 
-    lr = LogisticRegression(max_iter=200, n_jobs=1)
+    lr = make_pipeline(
+        StandardScaler(),
+        LogisticRegression(max_iter=2000, n_jobs=1, class_weight="balanced", random_state=seed),
+    )
     lr.fit(x_train, y_train)
     lr_probs = lr.predict_proba(x_test)[:, 1]
     results["logreg"] = evaluate(y_test, lr_probs)
 
     rf = RandomForestClassifier(
-        n_estimators=200, random_state=cfg["seed"], n_jobs=1, max_depth=None
+        n_estimators=200, random_state=seed, n_jobs=1, max_depth=None, class_weight="balanced_subsample"
     )
     rf.fit(x_train, y_train)
     rf_probs = rf.predict_proba(x_test)[:, 1]
