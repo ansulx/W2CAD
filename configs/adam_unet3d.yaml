@@ -1,0 +1,81 @@
+# ==========================================================================
+# Configuration: 3D UNet + Monte Carlo Dropout on ADAM dataset
+# ==========================================================================
+#
+# ADAM = Aneurysm Detection And segMentation challenge
+# This config trains a 3D UNet with MC Dropout for volumetric segmentation
+# of intracranial aneurysms from TOF-MRA volumes.
+#
+# Usage:
+#   python scripts/train_unet3d_mc.py --config configs/adam_unet3d.yaml
+
+# ---------------------------------------------------------------------------
+# Paths  (update these to match your local setup)
+# ---------------------------------------------------------------------------
+data_root: "./data/adam"              # root folder containing training/ and testing/
+train_folder: "training"              # subfolder name inside data_root
+test_folder: "testing"                # subfolder name inside data_root
+output_dir: "./outputs/adam_unet3d"   # where checkpoints, metrics, figures go
+
+# Filenames inside each subject folder
+image_name: "TOF.nii.gz"             # TOF-MRA volume
+mask_name: "aneurysms.nii.gz"        # binary segmentation mask (set null for test-only)
+
+# ---------------------------------------------------------------------------
+# Data split
+# ---------------------------------------------------------------------------
+val_size: 0.15
+seed: 42
+
+# ---------------------------------------------------------------------------
+# Model
+# ---------------------------------------------------------------------------
+model_preset: "base"        # "small" (0.3M), "base" (4.5M), "large" (18M)
+in_channels: 1              # single-channel TOF-MRA
+num_classes: 2              # background + aneurysm
+
+# ---------------------------------------------------------------------------
+# Monte Carlo Dropout
+# ---------------------------------------------------------------------------
+dropout_rate: 0.15          # dropout probability (kept active at inference)
+mc_samples: 20              # T = number of stochastic forward passes
+mc_overlap: 0.25            # overlap fraction for sliding-window inference
+
+# ---------------------------------------------------------------------------
+# Training
+# ---------------------------------------------------------------------------
+patch_size: [64, 64, 64]    # 3D patch size (D, H, W)
+patches_per_volume: 8       # random patches per volume per epoch
+batch_size: 2               # adjust based on GPU memory
+num_workers: 2
+pin_memory: true
+
+lr: 0.0001                  # Adam learning rate
+weight_decay: 0.00001       # L2 regularisation
+epochs: 100
+patience: 15                # early stopping patience (val Dice)
+min_delta: 0.001
+
+# Loss weights
+dice_weight: 0.5
+bce_weight: 0.5
+
+# LR scheduler
+scheduler:
+  name: "reduce_on_plateau"
+  factor: 0.5
+  patience: 5
+  min_lr: 1.0e-7
+
+# ---------------------------------------------------------------------------
+# Data augmentation
+# ---------------------------------------------------------------------------
+augment: true
+normalize: "zscore"         # "zscore" or "minmax"
+foreground_ratio: 0.5       # fraction of patches centered on aneurysm voxels
+
+# ---------------------------------------------------------------------------
+# Tiny run (quick sanity check on CPU / small GPU)
+# ---------------------------------------------------------------------------
+tiny_run: false
+max_subjects_tiny: 2
